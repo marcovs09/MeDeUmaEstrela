@@ -4,25 +4,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         const userData = await getUserData(user.id);
-
         document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
         document.getElementById('navUsername').textContent = userData.username;
 
         const allUsers = await getAllUsers();
 
-        // Ranking por estrelas
         const sortedStars = [...allUsers].sort((a, b) =>
             (b.estrelas_recebidas || 0) - (a.estrelas_recebidas || 0)
         );
         renderRanking('rankingStars', sortedStars, 'estrelas_recebidas', '⭐');
 
-        // Ranking por tomates
         const sortedTomatoes = [...allUsers].sort((a, b) =>
             (b.tomates_recebidos || 0) - (a.tomates_recebidos || 0)
         );
         renderRanking('rankingTomatoes', sortedTomatoes, 'tomates_recebidos', '🍅');
 
-        // Ranking por reputação
         const sortedRep = [...allUsers].sort((a, b) => {
             const repA = (a.estrelas_recebidas || 0) - (a.tomates_recebidos || 0);
             const repB = (b.estrelas_recebidas || 0) - (b.tomates_recebidos || 0);
@@ -30,7 +26,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         renderRanking('rankingReputation', sortedRep, 'reputation', '🏆');
 
-        // Abas
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -42,7 +37,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
     } catch (error) {
-        console.error('Erro ao carregar ranking:', error);
+        console.error('Erro no ranking:', error);
+        document.querySelector('.ranking-container').innerHTML = `
+            <p style="text-align:center;color:#e74c3c;">Erro ao carregar ranking: ${error.message}</p>
+        `;
     }
 });
 
