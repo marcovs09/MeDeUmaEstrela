@@ -20,7 +20,6 @@
     font-weight: 600;
 }
 
-/* Campo de tomates */
 .campo {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -57,10 +56,6 @@
     box-shadow: 0 2px 0 #1a3a10;
 }
 
-.pé-tomate .planta {
-    transition: transform 0.2s;
-}
-
 .pé-tomate.clicado .planta {
     animation: shakePlanta 0.3s ease;
 }
@@ -71,7 +66,6 @@
     75% { transform: rotate(10deg); }
 }
 
-/* Informações */
 .fazenda-info {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -106,7 +100,6 @@
     color: #4a3520;
 }
 
-/* Barra de progresso */
 .progresso-container {
     background: #f0e6d8;
     border-radius: 50px;
@@ -123,7 +116,6 @@
     width: 0%;
 }
 
-/* Mensagem de tomate ganho */
 .tomate-ganho {
     background: #fdf6ed;
     border: 2px solid #e74c3c;
@@ -141,7 +133,19 @@
     100% { transform: scale(1); opacity: 1; }
 }
 
-/* Responsivo */
+.fazenda-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.fazenda-actions .btn {
+    padding: 10px 24px;
+    font-size: 0.95rem;
+}
+
 @media (max-width: 600px) {
     .campo {
         grid-template-columns: repeat(5, 1fr);
