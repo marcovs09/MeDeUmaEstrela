@@ -109,6 +109,7 @@ async function giveTomato(fromUserId, toUserId) {
 }
 
 // Sistema diário - adicionar pontos
+// Sistema de tempo - adicionar pontos a cada 1 hora
 async function dailyUpdate(userId) {
     if (!supabaseClient) {
         throw new Error('Supabase não inicializado. Aguarde o carregamento.');
@@ -116,17 +117,21 @@ async function dailyUpdate(userId) {
     const user = await getUserData(userId);
     const lastAccess = new Date(user.ultimo_acesso);
     const now = new Date();
-    const diffDays = Math.floor((now - lastAccess) / (1000 * 60 * 60 * 24));
-
-    if (diffDays > 0) {
-        const newStars = (user.estrelas_disponiveis || 0) + diffDays;
-        const newTomatoes = (user.tomates_disponiveis || 0) + diffDays;
+    
+    // Calcular diferença em horas (em vez de dias)
+    const diffHours = Math.floor((now - lastAccess) / (1000 * 60 * 60));
+    
+    // Se passou pelo menos 1 hora
+    if (diffHours >= 1) {
+        // Adiciona 1 estrela e 1 tomate por hora
+        const newStars = (user.estrelas_disponiveis || 0) + diffHours;
+        const newTomatoes = (user.tomates_disponiveis || 0) + diffHours;
 
         await updateUserPoints(userId, 'estrelas_disponiveis', newStars);
         await updateUserPoints(userId, 'tomates_disponiveis', newTomatoes);
         await updateUserPoints(userId, 'ultimo_acesso', now.toISOString());
 
-        return { starsAdded: diffDays, tomatoesAdded: diffDays };
+        return { starsAdded: diffHours, tomatoesAdded: diffHours };
     }
     return { starsAdded: 0, tomatoesAdded: 0 };
 }
