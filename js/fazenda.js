@@ -1,5 +1,5 @@
 // ============================================================
-// FAZENDA DE TOMATES — VERSÃO QUE SALVA NO BANCO
+// FAZENDA DE TOMATES — VERSÃO QUE SALVA A DATA CORRETAMENTE
 // ============================================================
 
 const CLIQUES_POR_TOMATE = 150;
@@ -7,12 +7,10 @@ const COOLDOWN_MINUTOS = 25;
 
 let cliquesHoje = 0;
 let tomatesGanhosHoje = 0;
-let ultimoTomate = null;
+let ultimoTomate = null; // string ISO
 let userId = null;
 let timerInterval = null;
 
-// ============================================================
-// INICIALIZAÇÃO
 // ============================================================
 document.addEventListener('DOMContentLoaded', async () => {
     const user = requireAuth();
@@ -21,7 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         const userData = await getUserData(userId);
-
         document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
         document.getElementById('navUsername').textContent = userData.username;
 
@@ -76,30 +73,24 @@ function clicarPe(index) {
 }
 
 // ============================================================
-// GANHAR TOMATE — AQUI É ONDE SALVAMOS A DATA!
-// ============================================================
 async function ganharTomate() {
     if (!userId) return;
 
-    // 1. Resetar cliques e adicionar tomate
     cliquesHoje = 0;
     tomatesGanhosHoje++;
     
-    // 2. 👇 SALVAR A DATA ATUAL NO BANCO
+    // 👇 SALVA A DATA ATUAL
     const agora = new Date();
-    ultimoTomate = agora.toISOString(); // guarda como string ISO
+    ultimoTomate = agora.toISOString();
 
-    // 3. Atualizar UI
     document.getElementById('tomatesGanhosHoje').textContent = tomatesGanhosHoje;
     document.getElementById('progressoBar').style.width = '0%';
     document.getElementById('progressoText').textContent = `0/${CLIQUES_POR_TOMATE}`;
 
-    // 4. Mensagem comemoração
     const msg = document.getElementById('tomateGanho');
     msg.style.display = 'block';
     setTimeout(() => { msg.style.display = 'none'; }, 4000);
 
-    // 5. Adicionar tomate ao saldo do usuário
     try {
         const userData = await getUserData(userId);
         const novosTomates = (userData.tomates_disponiveis || 0) + 1;
@@ -109,15 +100,10 @@ async function ganharTomate() {
         console.error('Erro ao adicionar tomate:', error);
     }
 
-    // 6. 👇 SALVAR TUDO NO BANCO (inclusive a data!)
     await salvarEstado();
-
-    // 7. 👇 REINICIAR O TIMER COM A NOVA DATA
     iniciarTimer();
 }
 
-// ============================================================
-// COOLDOWN — USA A DATA SALVA NO BANCO
 // ============================================================
 function cooldownAtivo() {
     if (!ultimoTomate) return false;
@@ -144,8 +130,6 @@ function tempoRestanteSegundos() {
     return Math.max(0, Math.floor(restanteMs / 1000));
 }
 
-// ============================================================
-// TIMER — ATUALIZA A CADA 1 SEGUNDO
 // ============================================================
 function iniciarTimer() {
     if (timerInterval) {
@@ -181,15 +165,11 @@ function atualizarDisplayTimer() {
 }
 
 // ============================================================
-// SALVAR E CARREGAR DO BANCO
-// ============================================================
 async function salvarEstado() {
     if (!userId) return;
     try {
         await updateUserPoints(userId, 'cliques_tomate', cliquesHoje);
         await updateUserPoints(userId, 'tomates_fazenda', tomatesGanhosHoje);
-        
-        // 👇 SALVA A DATA NO BANCO
         if (ultimoTomate) {
             await updateUserPoints(userId, 'ultimo_tomate', ultimoTomate);
         } else {
@@ -200,6 +180,7 @@ async function salvarEstado() {
     }
 }
 
+// ============================================================
 async function carregarEstado(userId) {
     try {
         const userData = await getUserData(userId);
@@ -207,25 +188,20 @@ async function carregarEstado(userId) {
         cliquesHoje = userData.cliques_tomate || 0;
         tomatesGanhosHoje = userData.tomates_fazenda || 0;
 
-        // 👇 LEITURA DA DATA - VERSÃO SIMPLIFICADA
         const raw = userData.ultimo_tomate;
         if (raw) {
-            // Tenta converter para data
             const d = new Date(raw);
             if (!isNaN(d.getTime())) {
-                ultimoTomate = raw; // mantém como string
-                console.log('📅 Data carregada:', ultimoTomate);
+                ultimoTomate = raw;
             } else {
-                console.log('⚠️ Data inválida, resetando');
                 ultimoTomate = null;
                 await updateUserPoints(userId, 'ultimo_tomate', null);
             }
         } else {
-            console.log('📅 Sem data salva');
             ultimoTomate = null;
         }
 
-        // Se não tem data OU o cooldown já passou, libera
+        // SE NÃO TEM DATA OU O COOLDOWN JÁ PASSOU, LIBERA
         if (!ultimoTomate || !cooldownAtivo()) {
             ultimoTomate = null;
             await updateUserPoints(userId, 'ultimo_tomate', null);
