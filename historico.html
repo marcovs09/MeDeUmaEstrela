@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>📜 Histórico — Me dê uma estrela</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/principal.css" />
+    <link rel="stylesheet" href="css/historico.css" />
+</head>
+<body>
+    <div class="stars-bg"></div>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-star">⭐</span>
+            <span class="brand-name">Me dê uma estrela</span>
+            <span class="brand-tomato">🍅</span>
+        </div>
+        <div class="navbar-user">
+            <span class="user-avatar" id="navAvatar">🟡</span>
+            <span class="user-name" id="navUsername">Carregando...</span>
+            <button class="btn-nav" onclick="window.location.href='principal.html'">🏠</button>
+            <button class="btn-nav" onclick="logout()">🚪</button>
+        </div>
+    </nav>
+
+    <div class="historico-container">
+        <h2 class="historico-title">📜 Histórico de ações</h2>
+        <p class="historico-sub">As últimas estrelas e tomates do grupo</p>
+
+        <div class="historico-list" id="historicoList">
+            <p style="text-align:center;color:#b8956a;">Carregando...</p>
+        </div>
+    </div>
+
+    <script src="js/avatars.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/historico.js"></script>
+</body>
+</html>
