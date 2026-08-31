@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
         const userData = await getUserData(user.id);
-
         document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
         document.getElementById('navUsername').textContent = userData.username;
 
@@ -46,8 +45,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).join('');
 
     } catch (error) {
-        console.error('Erro ao carregar histórico:', error);
-        document.getElementById('historicoList').innerHTML =
-            '<p style="text-align:center;color:#e74c3c;">Erro ao carregar histórico.</p>';
+        console.error('Erro no histórico:', error);
+        document.getElementById('historicoList').innerHTML = `
+            <p style="text-align:center;color:#e74c3c;">Erro ao carregar histórico: ${error.message}</p>
+        `;
     }
 });
