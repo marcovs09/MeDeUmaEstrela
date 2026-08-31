@@ -13,7 +13,7 @@
     backdrop-filter: blur(12px);
     border-radius: 32px;
     padding: 40px 35px;
-    max-width: 480px;
+    max-width: 520px;
     width: 100%;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 215, 0, 0.15);
@@ -74,25 +74,44 @@
     box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.15);
 }
 
-.avatar-grid {
+/* ===== GRADE DE AVATARES ===== */
+.avatar-grid-cadastro {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
     margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 4px;
 }
 
 .avatar-option {
     aspect-ratio: 1;
-    border-radius: 16px;
+    border-radius: 12px;
     background: #fdf6ed;
     border: 3px solid transparent;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 2.2rem;
+    font-size: 2rem;
     cursor: pointer;
     transition: all 0.3s;
-    position: relative;
+    padding: 4px;
+}
+
+.avatar-option .avatar-label {
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: #b8956a;
+    opacity: 0;
+    transition: opacity 0.3s;
+    text-align: center;
+    line-height: 1.1;
+}
+
+.avatar-option:hover .avatar-label {
+    opacity: 1;
 }
 
 .avatar-option:hover {
@@ -104,20 +123,6 @@
     border-color: #f7c948;
     background: #fffcf0;
     box-shadow: 0 0 0 4px rgba(247, 201, 72, 0.2);
-}
-
-.avatar-option .avatar-label {
-    position: absolute;
-    bottom: 4px;
-    font-size: 0.5rem;
-    font-weight: 700;
-    color: #b8956a;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-
-.avatar-option:hover .avatar-label {
-    opacity: 1;
 }
 
 .btn-full {
@@ -151,11 +156,11 @@
     .auth-card {
         padding: 28px 20px;
     }
-    .avatar-grid {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
+    .avatar-grid-cadastro {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 6px;
     }
     .avatar-option {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
 }
