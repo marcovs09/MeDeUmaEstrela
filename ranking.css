@@ -1,0 +1,117 @@
+.ranking-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 20px 30px 40px;
+}
+
+.ranking-title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #4a3520;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.ranking-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 2px solid #f0e6d8;
+    background: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #b8956a;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tab-btn:hover {
+    border-color: #f7c948;
+    color: #4a3520;
+}
+
+.tab-btn.active {
+    background: #f7c948;
+    border-color: #f7c948;
+    color: white;
+}
+
+.ranking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ranking-list.hidden {
+    display: none;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: white;
+    border-radius: 16px;
+    padding: 12px 18px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(255, 215, 0, 0.06);
+    transition: transform 0.3s;
+}
+
+.ranking-item:hover {
+    transform: translateX(4px);
+}
+
+.ranking-position {
+    font-size: 1.2rem;
+    font-weight: 900;
+    min-width: 40px;
+    color: #b8956a;
+}
+
+.ranking-position.gold { color: #f7c948; }
+.ranking-position.silver { color: #bdc3c7; }
+.ranking-position.bronze { color: #e67e22; }
+
+.ranking-avatar {
+    font-size: 2.2rem;
+}
+
+.ranking-name {
+    flex: 1;
+    font-weight: 700;
+    color: #4a3520;
+}
+
+.ranking-score {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #4a3520;
+}
+
+@media (max-width: 480px) {
+    .ranking-container {
+        padding: 16px 16px 30px;
+    }
+    .ranking-title {
+        font-size: 1.5rem;
+    }
+    .tab-btn {
+        padding: 8px 14px;
+        font-size: 0.8rem;
+    }
+    .ranking-item {
+        padding: 10px 14px;
+    }
+    .ranking-avatar {
+        font-size: 1.8rem;
+    }
+}
