@@ -1,5 +1,5 @@
 // ============================================================
-// FAZENDA DE TOMATES — VERSÃO COM SALVAMENTO CORRETO
+// FAZENDA DE TOMATES — VERSÃO QUE SALVA NO BANCO
 // ============================================================
 
 const CLIQUES_POR_TOMATE = 150;
@@ -7,7 +7,7 @@ const COOLDOWN_MINUTOS = 25;
 
 let cliquesHoje = 0;
 let tomatesGanhosHoje = 0;
-let ultimoTomate = null; // string ISO
+let ultimoTomate = null;
 let userId = null;
 let timerInterval = null;
 
@@ -38,8 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ============================================================
-// CRIAR CAMPO
-// ============================================================
 function criarCampo() {
     const campo = document.getElementById('campo');
     const emojis = ['🌱', '🌿', '☘️', '🍀', '🌱'];
@@ -54,8 +52,6 @@ function criarCampo() {
     }
 }
 
-// ============================================================
-// CLICAR NO PÉ
 // ============================================================
 function clicarPe(index) {
     if (cooldownAtivo()) {
@@ -80,23 +76,30 @@ function clicarPe(index) {
 }
 
 // ============================================================
-// GANHAR TOMATE
+// GANHAR TOMATE — AQUI É ONDE SALVAMOS A DATA!
 // ============================================================
 async function ganharTomate() {
     if (!userId) return;
 
+    // 1. Resetar cliques e adicionar tomate
     cliquesHoje = 0;
     tomatesGanhosHoje++;
-    ultimoTomate = new Date().toISOString();
+    
+    // 2. 👇 SALVAR A DATA ATUAL NO BANCO
+    const agora = new Date();
+    ultimoTomate = agora.toISOString(); // guarda como string ISO
 
+    // 3. Atualizar UI
     document.getElementById('tomatesGanhosHoje').textContent = tomatesGanhosHoje;
     document.getElementById('progressoBar').style.width = '0%';
     document.getElementById('progressoText').textContent = `0/${CLIQUES_POR_TOMATE}`;
 
+    // 4. Mensagem comemoração
     const msg = document.getElementById('tomateGanho');
     msg.style.display = 'block';
     setTimeout(() => { msg.style.display = 'none'; }, 4000);
 
+    // 5. Adicionar tomate ao saldo do usuário
     try {
         const userData = await getUserData(userId);
         const novosTomates = (userData.tomates_disponiveis || 0) + 1;
@@ -106,12 +109,15 @@ async function ganharTomate() {
         console.error('Erro ao adicionar tomate:', error);
     }
 
+    // 6. 👇 SALVAR TUDO NO BANCO (inclusive a data!)
     await salvarEstado();
+
+    // 7. 👇 REINICIAR O TIMER COM A NOVA DATA
     iniciarTimer();
 }
 
 // ============================================================
-// COOLDOWN — CÁLCULO CORRETO COM DATA SALVA
+// COOLDOWN — USA A DATA SALVA NO BANCO
 // ============================================================
 function cooldownAtivo() {
     if (!ultimoTomate) return false;
@@ -182,6 +188,8 @@ async function salvarEstado() {
     try {
         await updateUserPoints(userId, 'cliques_tomate', cliquesHoje);
         await updateUserPoints(userId, 'tomates_fazenda', tomatesGanhosHoje);
+        
+        // 👇 SALVA A DATA NO BANCO
         if (ultimoTomate) {
             await updateUserPoints(userId, 'ultimo_tomate', ultimoTomate);
         } else {
@@ -199,6 +207,7 @@ async function carregarEstado(userId) {
         cliquesHoje = userData.cliques_tomate || 0;
         tomatesGanhosHoje = userData.tomates_fazenda || 0;
 
+        // 👇 CARREGA A DATA DO BANCO
         const raw = userData.ultimo_tomate;
         if (raw) {
             const d = new Date(raw);
@@ -212,7 +221,7 @@ async function carregarEstado(userId) {
             ultimoTomate = null;
         }
 
-        // 🔥 CORREÇÃO: Se o cooldown já passou, liberar o timer
+        // 👇 SE O COOLDOWN JÁ PASSOU, LIBERA O TIMER
         if (ultimoTomate && !cooldownAtivo()) {
             ultimoTomate = null;
             await updateUserPoints(userId, 'ultimo_tomate', null);
@@ -224,8 +233,6 @@ async function carregarEstado(userId) {
 }
 
 // ============================================================
-// UI — ATUALIZA TELA
-// ============================================================
 function atualizarUI() {
     document.getElementById('tomatesGanhosHoje').textContent = tomatesGanhosHoje;
     const progresso = Math.min((cliquesHoje / CLIQUES_POR_TOMATE) * 100, 100);
@@ -233,8 +240,6 @@ function atualizarUI() {
     document.getElementById('progressoText').textContent = `${cliquesHoje}/${CLIQUES_POR_TOMATE}`;
 }
 
-// ============================================================
-// BOTÕES
 // ============================================================
 function configurarBotoes() {
     document.getElementById('btnReset')?.addEventListener('click', resetarMinigame);
