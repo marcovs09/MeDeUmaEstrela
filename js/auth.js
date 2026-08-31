@@ -1,7 +1,7 @@
 // ===== CONFIGURAÇÃO SUPABASE =====
-// IMPORTANTE: Substitua pelos seus dados do Supabase
-const SUPABASE_URL = 'https://onafctklpgqokudrbcnd.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_bN1oyjkg-d0YaoaQwnC8hA_USqEn660';
+// ⚠️ COPIE EXATAMENTE DO SEU SUPABASE: Settings > API
+const SUPABASE_URL = 'https://onafctklpgqokudrbcnd.supabase.co';  // Confirme se está certo!
+const SUPABASE_KEY = 'sb_publishable_bN1oyjkg-d0YaoaQwnC8hA_USqEn660';  // Confirme se está certo!
 
 // Inicializar cliente Supabase
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -24,8 +24,16 @@ async function handleCadastro(e) {
 
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
-    const avatarEmoji = AVATARS[selectedAvatarIndex]?.emoji || '🟡';
-    const avatarName = AVATARS[selectedAvatarIndex]?.name || 'Amigo';
+    
+    // Verifica se o avatar foi selecionado
+    let avatarEmoji = '🟡';
+    let avatarName = 'Amigo';
+    
+    // Tenta pegar o avatar selecionado (se a função existir)
+    if (typeof selectedAvatarIndex !== 'undefined' && typeof AVATARS !== 'undefined') {
+        avatarEmoji = AVATARS[selectedAvatarIndex]?.emoji || '🟡';
+        avatarName = AVATARS[selectedAvatarIndex]?.name || 'Amigo';
+    }
 
     if (!username || username.length < 3) {
         alert('Nome de usuário precisa ter pelo menos 3 caracteres.');
@@ -38,7 +46,7 @@ async function handleCadastro(e) {
     }
 
     try {
-        // Criar usuário no Supabase Auth
+        // 1. Criar usuário no Supabase Auth
         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email: `${username}@temp.medeumaestrela.com`,
             password: password,
@@ -46,7 +54,7 @@ async function handleCadastro(e) {
 
         if (authError) throw authError;
 
-        // Salvar dados do usuário na tabela 'usuarios'
+        // 2. Salvar dados do usuário na tabela 'usuarios'
         const { error: dbError } = await supabaseClient
             .from('usuarios')
             .insert({
@@ -70,7 +78,7 @@ async function handleCadastro(e) {
 
     } catch (error) {
         console.error('Erro no cadastro:', error);
-        alert('Erro ao criar conta. Tente novamente.');
+        alert('Erro ao criar conta: ' + error.message);
     }
 }
 
@@ -87,7 +95,7 @@ async function handleLogin(e) {
     }
 
     try {
-        // Buscar usuário pelo username
+        // 1. Buscar usuário pelo username
         const { data: userData, error: userError } = await supabaseClient
             .from('usuarios')
             .select('id, username')
@@ -95,30 +103,31 @@ async function handleLogin(e) {
             .single();
 
         if (userError || !userData) {
-            alert('Usuário não encontrado.');
+            alert('Usuário não encontrado. Verifique o nome ou crie uma conta.');
             return;
         }
 
-        // Autenticar com email temporário
+        // 2. Autenticar com email temporário
         const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
             email: `${username}@temp.medeumaestrela.com`,
             password: password,
         });
 
         if (authError) {
-            alert('Senha incorreta.');
+            alert('Senha incorreta. Tente novamente.');
             return;
         }
 
-        // Salvar sessão
+        // 3. Salvar sessão
         localStorage.setItem('user_id', userData.id);
         localStorage.setItem('username', username);
 
+        // 4. Redirecionar
         window.location.href = 'principal.html';
 
     } catch (error) {
         console.error('Erro no login:', error);
-        alert('Erro ao fazer login.');
+        alert('Erro ao fazer login: ' + error.message);
     }
 }
 
