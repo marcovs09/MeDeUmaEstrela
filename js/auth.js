@@ -1,7 +1,7 @@
 // ===== CONFIGURAÇÃO SUPABASE =====
 // IMPORTANTE: Substitua pelos seus dados do Supabase
-const SUPABASE_URL = 'https://onafctklpgqokudrbcnd.supabase.co/rest/v1/';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9uYWZjdGtscGdxb2t1ZHJiY25kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxOTU3NzEsImV4cCI6MjEwMzc3MTc3MX0.fqbHt8ER7uMj2ujHbfmW0gvGwni04psXWihSibW51dg';
+const SUPABASE_URL = 'https://onafctklpgqokudrbcnd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_bN1oyjkg-d0YaoaQwnC8hA_USqEn660';
 
 // Inicializar cliente Supabase
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
