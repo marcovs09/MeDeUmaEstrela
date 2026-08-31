@@ -1,5 +1,5 @@
 // ============================================================
-// FAZENDA DE TOMATES — VERSÃO ESTÁVEL
+// FAZENDA DE TOMATES — VERSÃO COM SALVAMENTO CORRETO
 // ============================================================
 
 const CLIQUES_POR_TOMATE = 150;
@@ -7,7 +7,7 @@ const COOLDOWN_MINUTOS = 25;
 
 let cliquesHoje = 0;
 let tomatesGanhosHoje = 0;
-let ultimoTomate = null; // sempre guardado como string ISO
+let ultimoTomate = null; // string ISO
 let userId = null;
 let timerInterval = null;
 
@@ -87,19 +87,16 @@ async function ganharTomate() {
 
     cliquesHoje = 0;
     tomatesGanhosHoje++;
-    ultimoTomate = new Date().toISOString(); // 👈 salva como string ISO
+    ultimoTomate = new Date().toISOString();
 
-    // Atualiza UI
     document.getElementById('tomatesGanhosHoje').textContent = tomatesGanhosHoje;
     document.getElementById('progressoBar').style.width = '0%';
     document.getElementById('progressoText').textContent = `0/${CLIQUES_POR_TOMATE}`;
 
-    // Mensagem comemoração
     const msg = document.getElementById('tomateGanho');
     msg.style.display = 'block';
     setTimeout(() => { msg.style.display = 'none'; }, 4000);
 
-    // Adiciona tomate ao saldo do usuário
     try {
         const userData = await getUserData(userId);
         const novosTomates = (userData.tomates_disponiveis || 0) + 1;
@@ -114,14 +111,14 @@ async function ganharTomate() {
 }
 
 // ============================================================
-// COOLDOWN — CÁLCULO CORRETO
+// COOLDOWN — CÁLCULO CORRETO COM DATA SALVA
 // ============================================================
 function cooldownAtivo() {
     if (!ultimoTomate) return false;
 
     const agora = new Date();
     const ultimo = new Date(ultimoTomate);
-    if (isNaN(ultimo.getTime())) return false; // data inválida
+    if (isNaN(ultimo.getTime())) return false;
 
     const diffMs = agora - ultimo;
     const diffMin = diffMs / (1000 * 60);
@@ -206,13 +203,19 @@ async function carregarEstado(userId) {
         if (raw) {
             const d = new Date(raw);
             if (!isNaN(d.getTime())) {
-                ultimoTomate = raw; // mantém como string ISO
+                ultimoTomate = raw;
             } else {
                 ultimoTomate = null;
                 await updateUserPoints(userId, 'ultimo_tomate', null);
             }
         } else {
             ultimoTomate = null;
+        }
+
+        // 🔥 CORREÇÃO: Se o cooldown já passou, liberar o timer
+        if (ultimoTomate && !cooldownAtivo()) {
+            ultimoTomate = null;
+            await updateUserPoints(userId, 'ultimo_tomate', null);
         }
 
     } catch (error) {
