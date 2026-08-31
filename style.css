@@ -1,0 +1,206 @@
+/* ===== RESET ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(145deg, #fdf6e3 0%, #fef9f0 50%, #fff5e6 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ===== FUNDO COM ESTRELAS ===== */
+.stars-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.stars-bg::before,
+.stars-bg::after {
+    content: '✦ ✧ ★ ✦ ✧ ★ ✦ ✧ ★ ✦ ✧ ★ ✦ ✧';
+    position: absolute;
+    font-size: 18px;
+    color: rgba(255, 215, 0, 0.15);
+    letter-spacing: 30px;
+    white-space: nowrap;
+    animation: floatStars 30s linear infinite;
+}
+
+.stars-bg::after {
+    top: 60%;
+    animation-delay: -15s;
+    font-size: 14px;
+    color: rgba(255, 215, 0, 0.08);
+}
+
+@keyframes floatStars {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* ===== BOTÕES ===== */
+.btn {
+    display: inline-block;
+    padding: 14px 40px;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #f9d976 0%, #f7c948 100%);
+    color: #5a3e1b;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(247, 201, 72, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    color: #5a3e1b;
+    border: 2px solid #f7c948;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(247, 201, 72, 0.2);
+    background: #fffcf0;
+}
+
+/* ===== LANDING PAGE ===== */
+.landing-container {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.landing-content {
+    text-align: center;
+    max-width: 600px;
+}
+
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.logo-emoji {
+    font-size: 4rem;
+    animation: floatEmoji 3s ease-in-out infinite;
+}
+
+.logo-emoji.tomato {
+    animation-delay: 1s;
+}
+
+@keyframes floatEmoji {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+}
+
+.landing-title {
+    font-size: 3.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #f9d976, #e8a317);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    letter-spacing: -1px;
+}
+
+.landing-subtitle {
+    font-size: 1.3rem;
+    color: #7a5a3a;
+    margin: 20px 0 35px;
+    font-weight: 600;
+}
+
+.landing-subtitle .highlight {
+    background: linear-gradient(135deg, #f9d976, #e8a317);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.landing-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.landing-mascots {
+    font-size: 2.2rem;
+    margin-top: 40px;
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    opacity: 0.6;
+}
+
+.landing-mascots span {
+    animation: bounceMascot 2s ease-in-out infinite;
+}
+
+.landing-mascots span:nth-child(2) { animation-delay: 0.2s; }
+.landing-mascots span:nth-child(3) { animation-delay: 0.4s; }
+.landing-mascots span:nth-child(4) { animation-delay: 0.6s; }
+.landing-mascots span:nth-child(5) { animation-delay: 0.8s; }
+
+@keyframes bounceMascot {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+.landing-footer {
+    margin-top: 30px;
+    color: #b8956a;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+/* ===== RESPONSIVO ===== */
+@media (max-width: 600px) {
+    .landing-title {
+        font-size: 2.5rem;
+    }
+    .logo-emoji {
+        font-size: 2.8rem;
+    }
+    .landing-subtitle {
+        font-size: 1.1rem;
+    }
+    .btn {
+        padding: 12px 28px;
+        font-size: 1rem;
+    }
+    .landing-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+}
