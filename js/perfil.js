@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    // Aguardar o Supabase inicializar
+    if (typeof supabaseClient === 'undefined') {
+        alert('Aguardando carregamento do Supabase... Recarregue a página.');
+        return;
+    }
+
     const user = requireAuth();
     if (!user) return;
 
