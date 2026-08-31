@@ -2,6 +2,9 @@
 
 // Buscar dados do usuário
 async function getUserData(userId) {
+    if (!supabaseClient) {
+        throw new Error('Supabase não inicializado. Aguarde o carregamento.');
+    }
     const { data, error } = await supabaseClient
         .from('usuarios')
         .select('*')
@@ -14,6 +17,9 @@ async function getUserData(userId) {
 
 // Buscar todos os usuários
 async function getAllUsers() {
+    if (!supabaseClient) {
+        throw new Error('Supabase não inicializado. Aguarde o carregamento.');
+    }
     const { data, error } = await supabaseClient
         .from('usuarios')
         .select('*');
@@ -24,6 +30,9 @@ async function getAllUsers() {
 
 // Atualizar saldo de estrelas/tomates
 async function updateUserPoints(userId, field, value) {
+    if (!supabaseClient) {
+        throw new Error('Supabase não inicializado. Aguarde o carregamento.');
+    }
     const { error } = await supabaseClient
         .from('usuarios')
         .update({ [field]: value })
@@ -34,13 +43,16 @@ async function updateUserPoints(userId, field, value) {
 
 // Registrar ação no histórico
 async function addHistory(action, fromUserId, toUserId, type) {
+    if (!supabaseClient) {
+        throw new Error('Supabase não inicializado. Aguarde o carregamento.');
+    }
     const { error } = await supabaseClient
         .from('historico')
         .insert({
             action: action,
             from_user_id: fromUserId,
             to_user_id: toUserId,
-            type: type, // 'star' ou 'tomato'
+            type: type,
             created_at: new Date().toISOString(),
         });
 
@@ -49,6 +61,9 @@ async function addHistory(action, fromUserId, toUserId, type) {
 
 // Buscar histórico
 async function getHistory(limit = 20) {
+    if (!supabaseClient) {
+        throw new Error('Supabase não inicializado. Aguarde o carregamento.');
+    }
     const { data, error } = await supabaseClient
         .from('historico')
         .select('*, from_user:from_user_id(username, avatar_emoji), to_user:to_user_id(username, avatar_emoji)')
@@ -68,14 +83,9 @@ async function giveStar(fromUserId, toUserId) {
         throw new Error('Você não tem estrelas disponíveis hoje!');
     }
 
-    // Atualizar quem dá
     await updateUserPoints(fromUserId, 'estrelas_disponiveis', fromUser.estrelas_disponiveis - 1);
     await updateUserPoints(fromUserId, 'estrelas_dadas', fromUser.estrelas_dadas + 1);
-
-    // Atualizar quem recebe
     await updateUserPoints(toUserId, 'estrelas_recebidas', toUser.estrelas_recebidas + 1);
-
-    // Registrar histórico
     await addHistory(`⭐ deu uma estrela para`, fromUserId, toUserId, 'star');
 
     return true;
@@ -92,9 +102,7 @@ async function giveTomato(fromUserId, toUserId) {
 
     await updateUserPoints(fromUserId, 'tomates_disponiveis', fromUser.tomates_disponiveis - 1);
     await updateUserPoints(fromUserId, 'tomates_dados', fromUser.tomates_dados + 1);
-
     await updateUserPoints(toUserId, 'tomates_recebidos', toUser.tomates_recebidos + 1);
-
     await addHistory(`🍅 jogou um tomate em`, fromUserId, toUserId, 'tomato');
 
     return true;
@@ -102,14 +110,17 @@ async function giveTomato(fromUserId, toUserId) {
 
 // Sistema diário - adicionar pontos
 async function dailyUpdate(userId) {
+    if (!supabaseClient) {
+        throw new Error('Supabase não inicializado. Aguarde o carregamento.');
+    }
     const user = await getUserData(userId);
     const lastAccess = new Date(user.ultimo_acesso);
     const now = new Date();
     const diffDays = Math.floor((now - lastAccess) / (1000 * 60 * 60 * 24));
 
     if (diffDays > 0) {
-        const newStars = user.estrelas_disponiveis + diffDays;
-        const newTomatoes = user.tomates_disponiveis + diffDays;
+        const newStars = (user.estrelas_disponiveis || 0) + diffDays;
+        const newTomatoes = (user.tomates_disponiveis || 0) + diffDays;
 
         await updateUserPoints(userId, 'estrelas_disponiveis', newStars);
         await updateUserPoints(userId, 'tomates_disponiveis', newTomatoes);
