@@ -7,30 +7,28 @@ const COOLDOWN_MINUTOS = 25;
 // Estado
 let cliquesHoje = 0;
 let tomatesGanhosHoje = 0;
-let ultimoTomate = null; // Data do último tomate ganho
+let ultimoTomate = null;
 let cooldownAtivo = false;
+let userId = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     const user = requireAuth();
     if (!user) return;
+    userId = user.id;
 
     try {
         const userData = await getUserData(user.id);
 
-        // Atualizar navbar
         document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
         document.getElementById('navUsername').textContent = userData.username;
 
-        // Carregar estado do banco (se existir)
         await carregarEstado(user.id);
-
-        // Criar os pés de tomate
         criarCampo();
-
-        // Atualizar UI
         atualizarUI();
-
-        // Iniciar timer do cooldown
+        
+        // Botão de reset
+        document.getElementById('btnReset')?.addEventListener('click', resetarMinigame);
+        
         iniciarTimer();
 
     } catch (error) {
@@ -60,73 +58,67 @@ function clicarPe(index) {
         return;
     }
 
-    // Animação
     const pe = document.querySelectorAll('.pé-tomate')[index];
     pe.classList.add('clicado');
     setTimeout(() => pe.classList.remove('clicado'), 300);
 
-    // Contar clique
     cliquesHoje++;
     const progresso = Math.min((cliquesHoje / CLIQUES_POR_TOMATE) * 100, 100);
     document.getElementById('progressoBar').style.width = progresso + '%';
     document.getElementById('progressoText').textContent = `${cliquesHoje}/${CLIQUES_POR_TOMATE}`;
 
-    // Verificar se ganhou tomate
     if (cliquesHoje >= CLIQUES_POR_TOMATE) {
         ganharTomate();
     }
 
-    // Salvar progresso no banco
     salvarProgresso();
 }
 
 // ===== GANHAR TOMATE =====
 async function ganharTomate() {
-    const user = getCurrentUser();
-    if (!user) return;
+    if (!userId) return;
 
-    // Resetar cliques
     cliquesHoje = 0;
     tomatesGanhosHoje++;
     ultimoTomate = new Date();
     cooldownAtivo = true;
 
-    // Atualizar UI
     document.getElementById('tomatesGanhosHoje').textContent = tomatesGanhosHoje;
     document.getElementById('progressoBar').style.width = '0%';
     document.getElementById('progressoText').textContent = `0/${CLIQUES_POR_TOMATE}`;
 
-    // Mostrar mensagem
     const msg = document.getElementById('tomateGanho');
     msg.style.display = 'block';
     setTimeout(() => { msg.style.display = 'none'; }, 4000);
 
-    // Adicionar tomate ao saldo do usuário
     try {
-        const userData = await getUserData(user.id);
+        const userData = await getUserData(userId);
         const novosTomates = (userData.tomates_disponiveis || 0) + 1;
-        await updateUserPoints(user.id, 'tomates_disponiveis', novosTomates);
+        await updateUserPoints(userId, 'tomates_disponiveis', novosTomates);
         
         showToast(`🍅 Você ganhou um tomate! Saldo: ${novosTomates} tomates!`, '🍅');
     } catch (error) {
         console.error('Erro ao adicionar tomate:', error);
     }
 
-    // Salvar estado
-    await salvarEstado(user.id);
-
-    // Iniciar cooldown
+    await salvarEstado();
     iniciarTimer();
 }
 
-// ===== COOLDOWN =====
+// ===== COOLDOWN CORRIGIDO =====
 function iniciarTimer() {
-    if (!ultimoTomate) return;
+    if (!ultimoTomate) {
+        document.getElementById('tempoRestante').textContent = '✅ Disponível!';
+        cooldownAtivo = false;
+        return;
+    }
 
     const agora = new Date();
-    const diffMs = agora - new Date(ultimoTomate);
+    const ultimo = new Date(ultimoTomate);
+    const diffMs = agora - ultimo;
     const diffMin = diffMs / (1000 * 60);
 
+    // Se já passou o cooldown
     if (diffMin >= COOLDOWN_MINUTOS) {
         cooldownAtivo = false;
         document.getElementById('tempoRestante').textContent = '✅ Disponível!';
@@ -141,15 +133,13 @@ function iniciarTimer() {
     document.getElementById('tempoRestante').textContent = 
         `${String(restanteMin).padStart(2, '0')}:${String(restanteSeg).padStart(2, '0')}`;
 
-    // Atualizar a cada segundo
     setTimeout(iniciarTimer, 1000);
 }
 
 // ===== SALVAR NO BANCO =====
-async function salvarEstado(userId) {
+async function salvarEstado() {
+    if (!userId) return;
     try {
-        // Salvar progresso em uma nova tabela ou coluna
-        // Opção: usar a tabela 'usuarios' com colunas extras
         await updateUserPoints(userId, 'cliques_tomate', cliquesHoje);
         await updateUserPoints(userId, 'tomates_fazenda', tomatesGanhosHoje);
         if (ultimoTomate) {
@@ -167,6 +157,10 @@ async function carregarEstado(userId) {
         tomatesGanhosHoje = userData.tomates_fazenda || 0;
         if (userData.ultimo_tomate) {
             ultimoTomate = new Date(userData.ultimo_tomate);
+            // Verificar se a data é válida
+            if (isNaN(ultimoTomate.getTime())) {
+                ultimoTomate = null;
+            }
         }
     } catch (error) {
         console.error('Erro ao carregar estado:', error);
@@ -174,13 +168,42 @@ async function carregarEstado(userId) {
 }
 
 function salvarProgresso() {
-    // Salvar a cada clique (opcional, para não perder progresso)
-    const user = getCurrentUser();
-    if (user) {
-        // Podemos salvar a cada 10 cliques para não sobrecarregar
-        if (cliquesHoje % 10 === 0) {
-            salvarEstado(user.id);
-        }
+    if (userId && cliquesHoje % 10 === 0) {
+        salvarEstado();
+    }
+}
+
+// ===== RESETAR MINIGAME =====
+async function resetarMinigame() {
+    if (!userId) return;
+
+    const confirmar = confirm('⚠️ Tem certeza que quer resetar seu progresso na fazenda? Você vai perder todos os cliques acumulados!');
+    if (!confirmar) return;
+
+    try {
+        // Resetar estado local
+        cliquesHoje = 0;
+        tomatesGanhosHoje = 0;
+        ultimoTomate = null;
+        cooldownAtivo = false;
+
+        // Resetar no banco
+        await updateUserPoints(userId, 'cliques_tomate', 0);
+        await updateUserPoints(userId, 'tomates_fazenda', 0);
+        await updateUserPoints(userId, 'ultimo_tomate', null);
+
+        // Atualizar UI
+        atualizarUI();
+        document.getElementById('tempoRestante').textContent = '✅ Disponível!';
+        document.getElementById('progressoBar').style.width = '0%';
+        document.getElementById('progressoText').textContent = `0/${CLIQUES_POR_TOMATE}`;
+        document.getElementById('tomatesGanhosHoje').textContent = '0';
+
+        showToast('🔄 Minigame resetado com sucesso!', '🔄');
+
+    } catch (error) {
+        console.error('Erro ao resetar:', error);
+        alert('Erro ao resetar o minigame.');
     }
 }
 
@@ -193,11 +216,14 @@ function atualizarUI() {
 
     if (ultimoTomate) {
         const agora = new Date();
-        const diffMs = agora - new Date(ultimoTomate);
-        const diffMin = diffMs / (1000 * 60);
+        const ultimo = new Date(ultimoTomate);
+        const diffMin = (agora - ultimo) / (1000 * 60);
         if (diffMin >= COOLDOWN_MINUTOS) {
             cooldownAtivo = false;
             document.getElementById('tempoRestante').textContent = '✅ Disponível!';
         }
+    } else {
+        document.getElementById('tempoRestante').textContent = '✅ Disponível!';
+        cooldownAtivo = false;
     }
 }
