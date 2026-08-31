@@ -30,7 +30,10 @@
 
     <div class="profile-container">
         <div class="profile-card">
-            <div class="profile-avatar" id="profileAvatar">🟡</div>
+            <div class="profile-avatar-section">
+                <div class="profile-avatar" id="profileAvatar">🟡</div>
+                <button class="btn btn-secondary btn-small" id="btnTrocarAvatar">🔄 Trocar Avatar</button>
+            </div>
             <h1 class="profile-name" id="profileName">Carregando...</h1>
 
             <div class="profile-stats">
@@ -67,6 +70,19 @@
             </div>
 
             <a href="principal.html" class="btn btn-primary">← Voltar ao grupo</a>
+        </div>
+    </div>
+
+    <!-- Modal para trocar avatar -->
+    <div class="modal" id="avatarModal">
+        <div class="modal-content modal-avatar">
+            <h3>🔄 Escolha seu novo avatar</h3>
+            <p>Clique em um emoji para trocar seu personagem!</p>
+            <div class="avatar-grid avatar-selector-grid" id="avatarSelectorGrid"></div>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="fecharModalAvatar()">Cancelar</button>
+                <button class="btn btn-primary" id="btnConfirmarAvatar">Confirmar ⭐</button>
+            </div>
         </div>
     </div>
 
