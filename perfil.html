@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⭐ Perfil — Me dê uma estrela</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/principal.css" />
+    <link rel="stylesheet" href="css/perfil.css" />
+</head>
+<body>
+    <div class="stars-bg"></div>
+
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-star">⭐</span>
+            <span class="brand-name">Me dê uma estrela</span>
+            <span class="brand-tomato">🍅</span>
+        </div>
+        <div class="navbar-user">
+            <span class="user-avatar" id="navAvatar">🟡</span>
+            <span class="user-name" id="navUsername">Carregando...</span>
+            <button class="btn-nav" onclick="window.location.href='principal.html'">🏠</button>
+            <button class="btn-nav" onclick="logout()">🚪</button>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-avatar" id="profileAvatar">🟡</div>
+            <h1 class="profile-name" id="profileName">Carregando...</h1>
+
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">⭐</span>
+                    <span class="stat-value" id="starsReceived">0</span>
+                    <span class="stat-label">recebidas</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🍅</span>
+                    <span class="stat-value" id="tomatoesReceived">0</span>
+                    <span class="stat-label">recebidos</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🏆</span>
+                    <span class="stat-value" id="reputation">0</span>
+                    <span class="stat-label">reputação</span>
+                </div>
+            </div>
+
+            <div class="profile-extra">
+                <div class="extra-item">
+                    <span class="extra-label">⭐ Estrelas dadas</span>
+                    <span class="extra-value" id="starsGiven">0</span>
+                </div>
+                <div class="extra-item">
+                    <span class="extra-label">🍅 Tomates dados</span>
+                    <span class="extra-value" id="tomatoesGiven">0</span>
+                </div>
+                <div class="extra-item">
+                    <span class="extra-label">📊 Posição no ranking</span>
+                    <span class="extra-value" id="rankPosition">#0</span>
+                </div>
+            </div>
+
+            <a href="principal.html" class="btn btn-primary">← Voltar ao grupo</a>
+        </div>
+    </div>
+
+    <script src="js/avatars.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/perfil.js"></script>
+</body>
+</html>
