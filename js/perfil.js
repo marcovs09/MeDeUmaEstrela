@@ -5,11 +5,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const userData = await getUserData(user.id);
 
-        // Atualizar navbar
         document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
         document.getElementById('navUsername').textContent = userData.username;
 
-        // Atualizar perfil
         document.getElementById('profileAvatar').textContent = userData.avatar_emoji || '🟡';
         document.getElementById('profileName').textContent = userData.username;
 
@@ -23,15 +21,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('starsGiven').textContent = userData.estrelas_dadas || 0;
         document.getElementById('tomatoesGiven').textContent = userData.tomates_dados || 0;
 
-        // Calcular posição no ranking
         const allUsers = await getAllUsers();
-        const sorted = allUsers.sort((a, b) =>
+        const sorted = [...allUsers].sort((a, b) =>
             (b.estrelas_recebidas || 0) - (a.estrelas_recebidas || 0)
         );
         const position = sorted.findIndex(u => u.id === user.id) + 1;
         document.getElementById('rankPosition').textContent = `#${position}`;
 
     } catch (error) {
-        console.error('Erro ao carregar perfil:', error);
+        console.error('Erro no perfil:', error);
+        alert('Erro ao carregar perfil: ' + error.message);
     }
 });
