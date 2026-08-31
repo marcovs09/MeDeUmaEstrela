@@ -56,9 +56,10 @@ async function loadFriends() {
     try {
         allUsers = await getAllUsers();
         const grid = document.getElementById('friendsGrid');
+        if (!grid) return;
+        
         grid.innerHTML = '';
 
-        // Filtrar o próprio usuário
         const friends = allUsers.filter(u => u.id !== currentUser.id);
 
         if (friends.length === 0) {
@@ -75,6 +76,10 @@ async function loadFriends() {
 
     } catch (error) {
         console.error('Erro ao carregar amigos:', error);
+        const grid = document.getElementById('friendsGrid');
+        if (grid) {
+            grid.innerHTML = `<p style="text-align:center;color:#e74c3c;">Erro ao carregar amigos. Recarregue a página.</p>`;
+        }
     }
 }
 
