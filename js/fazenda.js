@@ -207,25 +207,31 @@ async function carregarEstado(userId) {
         cliquesHoje = userData.cliques_tomate || 0;
         tomatesGanhosHoje = userData.tomates_fazenda || 0;
 
-        // 👇 CARREGA A DATA DO BANCO
+        // 👇 LEITURA DA DATA - VERSÃO SIMPLIFICADA
         const raw = userData.ultimo_tomate;
         if (raw) {
+            // Tenta converter para data
             const d = new Date(raw);
             if (!isNaN(d.getTime())) {
-                ultimoTomate = raw;
+                ultimoTomate = raw; // mantém como string
+                console.log('📅 Data carregada:', ultimoTomate);
             } else {
+                console.log('⚠️ Data inválida, resetando');
                 ultimoTomate = null;
                 await updateUserPoints(userId, 'ultimo_tomate', null);
             }
         } else {
+            console.log('📅 Sem data salva');
             ultimoTomate = null;
         }
 
-        // 👇 SE O COOLDOWN JÁ PASSOU, LIBERA O TIMER
-        if (ultimoTomate && !cooldownAtivo()) {
+        // Se não tem data OU o cooldown já passou, libera
+        if (!ultimoTomate || !cooldownAtivo()) {
             ultimoTomate = null;
             await updateUserPoints(userId, 'ultimo_tomate', null);
         }
+
+        atualizarUI();
 
     } catch (error) {
         console.error('Erro ao carregar estado:', error);
