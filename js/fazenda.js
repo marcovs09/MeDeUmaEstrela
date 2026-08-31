@@ -1,5 +1,5 @@
 // ============================================================
-// FAZENDA DE TOMATES — VERSÃO QUE SALVA A DATA CORRETAMENTE
+// FAZENDA DE TOMATES — VERSÃO 2.0 (20 MIN / 200 CLIQUES)
 // ============================================================
 
 const CLIQUES_POR_TOMATE = 200;
@@ -7,7 +7,7 @@ const COOLDOWN_MINUTOS = 20;
 
 let cliquesHoje = 0;
 let tomatesGanhosHoje = 0;
-let ultimoTomate = null; // string ISO
+let ultimoTomate = null;
 let userId = null;
 let timerInterval = null;
 
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         configurarBotoes();
 
     } catch (error) {
-        console.error('Erro ao carregar fazenda:', error);
-        showToast('Erro ao carregar dados da fazenda.', '❌');
+        console.error('Erro:', error);
+        showToast('Erro ao carregar fazenda.', '❌');
     }
 });
 
@@ -52,7 +52,7 @@ function criarCampo() {
 // ============================================================
 function clicarPe(index) {
     if (cooldownAtivo()) {
-        showToast('⏳ Aguarde o cooldown de 25 minutos!', '⏳');
+        showToast('⏳ Aguarde 20 minutos!', '⏳');
         return;
     }
 
@@ -78,10 +78,7 @@ async function ganharTomate() {
 
     cliquesHoje = 0;
     tomatesGanhosHoje++;
-    
-    // 👇 SALVA A DATA ATUAL
-    const agora = new Date();
-    ultimoTomate = agora.toISOString();
+    ultimoTomate = new Date().toISOString();
 
     document.getElementById('tomatesGanhosHoje').textContent = tomatesGanhosHoje;
     document.getElementById('progressoBar').style.width = '0%';
@@ -95,7 +92,7 @@ async function ganharTomate() {
         const userData = await getUserData(userId);
         const novosTomates = (userData.tomates_disponiveis || 0) + 1;
         await updateUserPoints(userId, 'tomates_disponiveis', novosTomates);
-        showToast(`🍅 Você ganhou um tomate! Saldo: ${novosTomates}`, '🍅');
+        showToast(`🍅 +1 tomate! Saldo: ${novosTomates}`, '🍅');
     } catch (error) {
         console.error('Erro ao adicionar tomate:', error);
     }
@@ -107,26 +104,19 @@ async function ganharTomate() {
 // ============================================================
 function cooldownAtivo() {
     if (!ultimoTomate) return false;
-
     const agora = new Date();
     const ultimo = new Date(ultimoTomate);
     if (isNaN(ultimo.getTime())) return false;
-
-    const diffMs = agora - ultimo;
-    const diffMin = diffMs / (1000 * 60);
-
+    const diffMin = (agora - ultimo) / (1000 * 60);
     return diffMin < COOLDOWN_MINUTOS;
 }
 
 function tempoRestanteSegundos() {
     if (!ultimoTomate) return 0;
-
     const agora = new Date();
     const ultimo = new Date(ultimoTomate);
     if (isNaN(ultimo.getTime())) return 0;
-
-    const diffMs = agora - ultimo;
-    const restanteMs = (COOLDOWN_MINUTOS * 60 * 1000) - diffMs;
+    const restanteMs = (COOLDOWN_MINUTOS * 60 * 1000) - (agora - ultimo);
     return Math.max(0, Math.floor(restanteMs / 1000));
 }
 
@@ -136,29 +126,22 @@ function iniciarTimer() {
         clearInterval(timerInterval);
         timerInterval = null;
     }
-
     atualizarDisplayTimer();
-
-    timerInterval = setInterval(() => {
-        atualizarDisplayTimer();
-    }, 1000);
+    timerInterval = setInterval(atualizarDisplayTimer, 1000);
 }
 
 function atualizarDisplayTimer() {
     const el = document.getElementById('tempoRestante');
     if (!el) return;
-
     if (!ultimoTomate) {
         el.textContent = '✅ Disponível!';
         return;
     }
-
     const segundos = tempoRestanteSegundos();
     if (segundos <= 0) {
         el.textContent = '✅ Disponível!';
         return;
     }
-
     const min = Math.floor(segundos / 60);
     const seg = segundos % 60;
     el.textContent = `${String(min).padStart(2, '0')}:${String(seg).padStart(2, '0')}`;
@@ -170,21 +153,15 @@ async function salvarEstado() {
     try {
         await updateUserPoints(userId, 'cliques_tomate', cliquesHoje);
         await updateUserPoints(userId, 'tomates_fazenda', tomatesGanhosHoje);
-        if (ultimoTomate) {
-            await updateUserPoints(userId, 'ultimo_tomate', ultimoTomate);
-        } else {
-            await updateUserPoints(userId, 'ultimo_tomate', null);
-        }
+        await updateUserPoints(userId, 'ultimo_tomate', ultimoTomate);
     } catch (error) {
-        console.error('Erro ao salvar estado:', error);
+        console.error('Erro ao salvar:', error);
     }
 }
 
-// ============================================================
 async function carregarEstado(userId) {
     try {
         const userData = await getUserData(userId);
-
         cliquesHoje = userData.cliques_tomate || 0;
         tomatesGanhosHoje = userData.tomates_fazenda || 0;
 
@@ -201,16 +178,14 @@ async function carregarEstado(userId) {
             ultimoTomate = null;
         }
 
-        // SE NÃO TEM DATA OU O COOLDOWN JÁ PASSOU, LIBERA
         if (!ultimoTomate || !cooldownAtivo()) {
             ultimoTomate = null;
             await updateUserPoints(userId, 'ultimo_tomate', null);
         }
 
         atualizarUI();
-
     } catch (error) {
-        console.error('Erro ao carregar estado:', error);
+        console.error('Erro ao carregar:', error);
     }
 }
 
@@ -224,13 +199,12 @@ function atualizarUI() {
 
 // ============================================================
 function configurarBotoes() {
-    document.getElementById('btnReset')?.addEventListener('click', resetarMinigame);
+    document.getElementById('btnReset').addEventListener('click', resetarMinigame);
 }
 
 async function resetarMinigame() {
     if (!userId) return;
-    const confirmar = confirm('⚠️ Resetar progresso da fazenda? Você vai perder todos os cliques acumulados.');
-    if (!confirmar) return;
+    if (!confirm('⚠️ Resetar fazenda? Você vai perder todos os cliques.')) return;
 
     try {
         cliquesHoje = 0;
@@ -247,10 +221,9 @@ async function resetarMinigame() {
         document.getElementById('progressoBar').style.width = '0%';
         document.getElementById('progressoText').textContent = `0/${CLIQUES_POR_TOMATE}`;
 
-        showToast('🔄 Minigame resetado!', '🔄');
-
+        showToast('🔄 Fazenda resetada!', '🔄');
     } catch (error) {
         console.error('Erro ao resetar:', error);
-        alert('Erro ao resetar o minigame.');
+        alert('Erro ao resetar.');
     }
 }
