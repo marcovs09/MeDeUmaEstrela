@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌱 Fazenda de Tomates — Me dê uma estrela</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/principal.css" />
+    <link rel="stylesheet" href="css/fazenda.css" />
+</head>
+<body>
+    <div class="stars-bg"></div>
+
+    <!-- NAVBAR igual às outras páginas -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-star">⭐</span>
+            <span class="brand-name">Me dê uma estrela</span>
+            <span class="brand-tomato">🍅</span>
+        </div>
+        <div class="navbar-user">
+            <span class="user-avatar" id="navAvatar">🟡</span>
+            <span class="user-name" id="navUsername">Carregando...</span>
+            <button class="btn-nav" onclick="window.location.href='principal.html'">🏠</button>
+            <button class="btn-nav" onclick="window.location.href='fazenda.html'">🌱</button>
+            <button class="btn-nav" onclick="logout()">🚪</button>
+        </div>
+    </nav>
+
+    <div class="fazenda-container">
+        <div class="fazenda-header">
+            <h1>🌱 Fazenda de Tomates</h1>
+            <p>Clique nos pés de tomate para cultivar! A cada 150 cliques, você ganha 1 tomate! 🍅</p>
+        </div>
+
+        <!-- Campo de tomates -->
+        <div class="campo" id="campo">
+            <!-- 30 pés de tomate gerados via JS -->
+        </div>
+
+        <!-- Informações -->
+        <div class="fazenda-info">
+            <div class="info-card">
+                <span class="info-icon">🍅</span>
+                <div>
+                    <div class="info-label">Tomates ganhos hoje</div>
+                    <div class="info-value" id="tomatesGanhosHoje">0</div>
+                </div>
+            </div>
+            <div class="info-card">
+                <span class="info-icon">⏳</span>
+                <div>
+                    <div class="info-label">Próximo tomate em</div>
+                    <div class="info-value" id="tempoRestante">25:00</div>
+                </div>
+            </div>
+            <div class="info-card">
+                <span class="info-icon">📊</span>
+                <div>
+                    <div class="info-label">Progresso</div>
+                    <div class="info-value" id="progressoText">0/150</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Barra de progresso -->
+        <div class="progresso-container">
+            <div class="progresso-bar" id="progressoBar" style="width: 0%"></div>
+        </div>
+
+        <!-- Mensagem ao ganhar tomate -->
+        <div class="tomate-ganho" id="tomateGanho" style="display: none;">
+            🎉 PARABÉNS! Você ganhou um tomate! 🍅
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/avatars.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/fazenda.js"></script>
+</body>
+</html>
