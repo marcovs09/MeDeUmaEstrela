@@ -2,8 +2,8 @@
 // FAZENDA DE TOMATES — VERSÃO QUE SALVA A DATA CORRETAMENTE
 // ============================================================
 
-const CLIQUES_POR_TOMATE = 150;
-const COOLDOWN_MINUTOS = 25;
+const CLIQUES_POR_TOMATE = 200;
+const COOLDOWN_MINUTOS = 20;
 
 let cliquesHoje = 0;
 let tomatesGanhosHoje = 0;
