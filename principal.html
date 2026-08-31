@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>⭐ Me dê uma estrela — Principal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/principal.css" />
+</head>
+<body>
+    <div class="stars-bg"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <span class="brand-star">⭐</span>
+            <span class="brand-name">Me dê uma estrela</span>
+            <span class="brand-tomato">🍅</span>
+        </div>
+        <div class="navbar-user">
+            <span class="user-avatar" id="navAvatar">🟡</span>
+            <span class="user-name" id="navUsername">Carregando...</span>
+            <button class="btn-nav" onclick="window.location.href='perfil.html'">👤</button>
+            <button class="btn-nav" onclick="logout()">🚪</button>
+        </div>
+    </nav>
+
+    <!-- SALDO DIÁRIO -->
+    <section class="daily-balance">
+        <div class="balance-card star-balance">
+            <span class="balance-icon">⭐</span>
+            <div>
+                <div class="balance-label">Sua estrela de hoje</div>
+                <div class="balance-value" id="starCount">0 disponível</div>
+            </div>
+        </div>
+        <div class="balance-card tomato-balance">
+            <span class="balance-icon">🍅</span>
+            <div>
+                <div class="balance-label">Seu tomate de hoje</div>
+                <div class="balance-value" id="tomatoCount">0 disponível</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FRASE DIVERTIDA -->
+    <p class="fun-phrase" id="funPhrase">✨ Distribua amor. Ou tomates. ✨</p>
+
+    <!-- LISTA DE AMIGOS -->
+    <section class="friends-grid" id="friendsGrid">
+        <!-- Cards gerados via JS -->
+    </section>
+
+    <!-- RANKING RÁPIDO -->
+    <section class="quick-rank">
+        <a href="ranking.html" class="btn btn-secondary">🏆 Ver ranking completo</a>
+        <a href="historico.html" class="btn btn-secondary">📜 Ver histórico</a>
+    </section>
+
+    <!-- MODAL DE CONFIRMAÇÃO -->
+    <div class="modal" id="actionModal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">⭐</div>
+            <h3 id="modalTitle">Confirmar ação</h3>
+            <p id="modalMessage">Deseja continuar?</p>
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" id="modalConfirmBtn">Confirmar ⭐</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/avatars.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
