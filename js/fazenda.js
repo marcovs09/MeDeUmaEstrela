@@ -22,19 +22,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
         document.getElementById('navUsername').textContent = userData.username;
 
-        await carregarEstado(user.id);
-        criarCampo();
-        atualizarUI();
+        aasync function carregarEstado(userId) {
+    try {
+        const userData = await getUserData(userId);
+        cliquesHoje = userData.cliques_tomate || 0;
+        tomatesGanhosHoje = userData.tomates_fazenda || 0;
         
-        // Botão de reset
-        document.getElementById('btnReset')?.addEventListener('click', resetarMinigame);
-        
-        iniciarTimer();
-
+        if (userData.ultimo_tomate) {
+            ultimoTomate = new Date(userData.ultimo_tomate);
+            
+            // CORREÇÃO: Se a data for inválida ou muito antiga, resetar
+            if (isNaN(ultimoTomate.getTime())) {
+                ultimoTomate = null;
+                await updateUserPoints(userId, 'ultimo_tomate', null);
+            }
+        }
     } catch (error) {
-        console.error('Erro ao carregar fazenda:', error);
+        console.error('Erro ao carregar estado:', error);
     }
-});
+}
 
 // ===== CRIAR CAMPO =====
 function criarCampo() {
