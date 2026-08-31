@@ -56,14 +56,23 @@ let userIdAtual = null;
 function configurarTrocaAvatar(userId) {
     userIdAtual = userId;
 
-    document.getElementById('btnTrocarAvatar')?.addEventListener('click', abrirModalAvatar);
+    const btnTrocar = document.getElementById('btnTrocarAvatar');
+    if (btnTrocar) {
+        btnTrocar.addEventListener('click', abrirModalAvatar);
+    }
 
-    document.getElementById('btnConfirmarAvatar')?.addEventListener('click', confirmarTrocaAvatar);
+    const btnConfirmar = document.getElementById('btnConfirmarAvatar');
+    if (btnConfirmar) {
+        btnConfirmar.addEventListener('click', confirmarTrocaAvatar);
+    }
 
     // Fechar modal ao clicar fora
-    document.getElementById('avatarModal')?.addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) fecharModalAvatar();
-    });
+    const modal = document.getElementById('avatarModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) fecharModalAvatar();
+        });
+    }
 }
 
 function abrirModalAvatar() {
@@ -81,7 +90,8 @@ function abrirModalAvatar() {
 }
 
 function fecharModalAvatar() {
-    document.getElementById('avatarModal')?.classList.remove('active');
+    const modal = document.getElementById('avatarModal');
+    if (modal) modal.classList.remove('active');
 }
 
 async function confirmarTrocaAvatar() {
@@ -112,7 +122,12 @@ async function confirmarTrocaAvatar() {
 
 // ============================================================
 function showToast(message, icon = '⭐') {
+    // Remove toast antigo se existir
+    const oldToast = document.querySelector('.toast-custom');
+    if (oldToast) oldToast.remove();
+
     const toast = document.createElement('div');
+    toast.className = 'toast-custom';
     toast.style.cssText = `
         position: fixed;
         bottom: 30px;
