@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>🌱 Fazenda de Tomates — Me dê uma estrela</title>
+    <title>📜 Histórico — Me dê uma estrela</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/principal.css" />
-    <link rel="stylesheet" href="css/fazenda.css" />
+    <link rel="stylesheet" href="css/historico.css" />
 </head>
 <body>
     <div class="stars-bg"></div>
@@ -24,55 +24,17 @@
             <span class="user-avatar" id="navAvatar">🟡</span>
             <span class="user-name" id="navUsername">Carregando...</span>
             <button class="btn-nav" onclick="window.location.href='principal.html'">🏠</button>
-            <button class="btn-nav" onclick="window.location.href='fazenda.html'">🌱</button>
+            <button class="btn-nav" onclick="window.location.href='perfil.html'">👤</button>
             <button class="btn-nav" onclick="logout()">🚪</button>
         </div>
     </nav>
 
-    <div class="fazenda-container">
-        <div class="fazenda-header">
-            <h1>🌱 Fazenda de Tomates</h1>
-            <p>Clique nos pés de tomate para cultivar! A cada <strong>200 cliques</strong>, você ganha 1 tomate! 🍅</p>
-            <p style="font-size:0.9rem;color:#e74c3c;">⏳ Cooldown de <strong>20 minutos</strong> entre cada tomate</p>
-        </div>
+    <div class="historico-container">
+        <h2 class="historico-title">📜 Histórico de ações</h2>
+        <p class="historico-sub">As últimas estrelas e tomates do grupo</p>
 
-        <div class="campo" id="campo"></div>
-
-        <div class="fazenda-info">
-            <div class="info-card">
-                <span class="info-icon">🍅</span>
-                <div>
-                    <div class="info-label">Tomates ganhos hoje</div>
-                    <div class="info-value" id="tomatesGanhosHoje">0</div>
-                </div>
-            </div>
-            <div class="info-card">
-                <span class="info-icon">⏳</span>
-                <div>
-                    <div class="info-label">Próximo tomate em</div>
-                    <div class="info-value" id="tempoRestante">✅ Disponível!</div>
-                </div>
-            </div>
-            <div class="info-card">
-                <span class="info-icon">📊</span>
-                <div>
-                    <div class="info-label">Progresso</div>
-                    <div class="info-value" id="progressoText">0/200</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="progresso-container">
-            <div class="progresso-bar" id="progressoBar" style="width: 0%"></div>
-        </div>
-
-        <div class="tomate-ganho" id="tomateGanho" style="display: none;">
-            🎉 PARABÉNS! Você ganhou um tomate! 🍅
-        </div>
-
-        <div class="fazenda-actions">
-            <button class="btn btn-secondary" id="btnReset">🔄 Resetar Fazenda</button>
-            <button class="btn btn-primary" onclick="window.location.href='principal.html'">← Voltar</button>
+        <div class="historico-list" id="historicoList">
+            <p style="text-align:center;color:#b8956a;">Carregando...</p>
         </div>
     </div>
 
@@ -80,6 +42,6 @@
     <script src="js/avatars.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/database.js"></script>
-    <script src="js/fazenda.js"></script>
+    <script src="js/historico.js"></script>
 </body>
 </html>
