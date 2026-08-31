@@ -5,24 +5,34 @@ let userData = null;
 
 // ===== INICIALIZAÇÃO =====
 document.addEventListener('DOMContentLoaded', async () => {
+    // Aguardar o Supabase inicializar
+    if (typeof supabaseClient === 'undefined') {
+        console.log('Aguardando Supabase...');
+        // Tentar novamente após 500ms
+        setTimeout(async () => {
+            await initApp();
+        }, 500);
+        return;
+    }
+    await initApp();
+});
+
+async function initApp() {
     const user = requireAuth();
     if (!user) return;
 
     currentUser = user;
 
     try {
-        // Carregar dados do usuário
         userData = await getUserData(user.id);
         await dailyUpdate(user.id);
         userData = await getUserData(user.id);
 
-        // Atualizar UI
         updateNavbar();
         updateBalance();
         await loadFriends();
         setRandomPhrase();
 
-        // Configurar modal
         document.getElementById('actionModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeModal();
         });
@@ -31,8 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Erro ao carregar dados:', error);
         alert('Erro ao carregar seus dados. Tente recarregar.');
     }
-});
-
+}
 // ===== ATUALIZAR NAVBAR =====
 function updateNavbar() {
     document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
