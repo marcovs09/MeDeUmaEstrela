@@ -1,30 +1,34 @@
 // ============================================================
-// SISTEMA DE ONDA DE ESTRELAS — CRONÔMETRO GLOBAL
+// SISTEMA DE ONDA DE ESTRELAS — VERSÃO CORRETA E ESTÁVEL
 // ============================================================
 
-const INTERVALO_MINUTOS = 1; // 1 hora (mude para 60 depois)
-let tempoRestante = INTERVALO_MINUTOS * 60;
+const INTERVALO_SEGUNDOS = 3600; // 1 HORA = 3600 segundos
+let tempoRestante = INTERVALO_SEGUNDOS;
 let cronometroAtivo = false;
-let userId = null;
+let intervalId = null;
 
 // ============================================================
-// INICIALIZAR CRONÔMETRO
+// INICIAR CRONÔMETRO
 // ============================================================
 async function iniciarCronometro() {
     if (cronometroAtivo) return;
     cronometroAtivo = true;
 
-    const user = getCurrentUser();
-    if (user) userId = user.id;
-
     await carregarEstadoCronometro();
     atualizarDisplayCronometro();
 
-    setInterval(async () => {
+    if (intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+    }
+
+    intervalId = setInterval(async () => {
         if (tempoRestante > 0) {
             tempoRestante--;
             atualizarDisplayCronometro();
         } else {
+            clearInterval(intervalId);
+            intervalId = null;
             await distribuirOnda();
         }
     }, 1000);
@@ -37,7 +41,7 @@ async function carregarEstadoCronometro() {
     try {
         const { data, error } = await supabaseClient
             .from('sistema')
-            .select('*')
+            .select('ultima_onda')
             .eq('id', 'onda_estrelas')
             .single();
 
@@ -46,13 +50,13 @@ async function carregarEstadoCronometro() {
             return;
         }
 
-        if (data) {
+        if (data && data.ultima_onda) {
             const ultimaData = new Date(data.ultima_onda);
             const agora = new Date();
             const diffSegundos = Math.floor((agora - ultimaData) / 1000);
             
-            if (diffSegundos < INTERVALO_MINUTOS * 60) {
-                tempoRestante = (INTERVALO_MINUTOS * 60) - diffSegundos;
+            if (diffSegundos < INTERVALO_SEGUNDOS) {
+                tempoRestante = INTERVALO_SEGUNDOS - diffSegundos;
             } else {
                 tempoRestante = 0;
                 await distribuirOnda();
@@ -65,10 +69,11 @@ async function carregarEstadoCronometro() {
                     id: 'onda_estrelas',
                     ultima_onda: agora.toISOString(),
                 });
-            tempoRestante = INTERVALO_MINUTOS * 60;
+            tempoRestante = INTERVALO_SEGUNDOS;
         }
     } catch (error) {
-        console.error('Erro ao carregar estado do cronômetro:', error);
+        console.error('Erro ao carregar estado:', error);
+        tempoRestante = INTERVALO_SEGUNDOS;
     }
 }
 
@@ -82,11 +87,11 @@ async function distribuirOnda() {
         const allUsers = await getAllUsers();
 
         for (const user of allUsers) {
-            const novasEstrelas = (user.estrelas_disponiveis || 0) + 1;
-            const novosTomates = (user.tomates_disponiveis || 0) + 1;
+            const estrelasAtuais = user.estrelas_disponiveis || 0;
+            const tomatesAtuais = user.tomates_disponiveis || 0;
             
-            await updateUserPoints(user.id, 'estrelas_disponiveis', novasEstrelas);
-            await updateUserPoints(user.id, 'tomates_disponiveis', novosTomates);
+            await updateUserPoints(user.id, 'estrelas_disponiveis', estrelasAtuais + 1);
+            await updateUserPoints(user.id, 'tomates_disponiveis', tomatesAtuais + 1);
         }
 
         const agora = new Date();
@@ -97,22 +102,19 @@ async function distribuirOnda() {
                 ultima_onda: agora.toISOString(),
             });
 
-        tempoRestante = INTERVALO_MINUTOS * 60;
+        tempoRestante = INTERVALO_SEGUNDOS;
         atualizarDisplayCronometro();
 
         showToast('🌊 ONDA DE ESTRELAS! Todos ganharam 1⭐ e 1🍅!', '🌊');
 
-        if (typeof atualizarSaldoUI === 'function') {
-            await atualizarSaldoUI();
-        }
-
-        // Recarregar a página para atualizar os saldos
         setTimeout(() => {
             window.location.reload();
-        }, 2000);
+        }, 3000);
 
     } catch (error) {
-        console.error('Erro ao distribuir onda:', error);
+        console.error('❌ Erro ao distribuir onda:', error);
+        tempoRestante = INTERVALO_SEGUNDOS;
+        atualizarDisplayCronometro();
     }
 }
 
