@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         await loadFriends();
         setRandomPhrase();
 
-        // Iniciar cronômetro global
+        // ⭐ INICIAR CRONÔMETRO
         await iniciarCronometro();
 
         document.getElementById('actionModal').addEventListener('click', (e) => {
