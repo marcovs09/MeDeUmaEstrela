@@ -1,152 +1,135 @@
 // ============================================================
-// SISTEMA DE ONDA DE ESTRELAS — VERSÃO GLOBAL E PERSISTENTE
+// CRONÔMETRO GLOBAL — VERSÃO SIMPLES E FUNCIONAL
 // ============================================================
 
 const INTERVALO_SEGUNDOS = 3600; // 1 HORA
 let tempoRestante = INTERVALO_SEGUNDOS;
-let cronometroAtivo = false;
 let intervalId = null;
 
 // ============================================================
 // INICIAR CRONÔMETRO
 // ============================================================
 async function iniciarCronometro() {
-    if (cronometroAtivo) return;
-    cronometroAtivo = true;
+    // 1. CARREGAR O TEMPO SALVO NO BANCO
+    await carregarTempo();
 
-    // 1. Carregar o tempo restante salvo
-    await carregarTempoRestante();
+    // 2. ATUALIZAR A TELA
+    atualizarDisplay();
 
-    // 2. Atualizar display
-    atualizarDisplayCronometro();
-
-    // 3. Iniciar contagem regressiva
+    // 3. INICIAR A CONTAGEM
     if (intervalId) {
         clearInterval(intervalId);
         intervalId = null;
     }
 
     intervalId = setInterval(async () => {
-        if (tempoRestante > 0) {
-            tempoRestante--;
-            atualizarDisplayCronometro();
-            
-            // Salvar o tempo restante a cada 5 segundos (para não sobrecarregar)
-            if (tempoRestante % 5 === 0) {
-                await salvarTempoRestante();
-            }
-        } else {
-            // Parar o intervalo enquanto distribui
+        // DIMINUIR 1 SEGUNDO
+        tempoRestante--;
+
+        // ATUALIZAR A TELA
+        atualizarDisplay();
+
+        // SALVAR NO BANCO A CADA 1 SEGUNDO
+        await salvarTempo();
+
+        // SE CHEGOU A ZERO, DISTRIBUIR
+        if (tempoRestante <= 0) {
             clearInterval(intervalId);
             intervalId = null;
-            await distribuirOnda();
+            await distribuirParaTodos();
         }
     }, 1000);
 }
 
 // ============================================================
-// SALVAR TEMPO RESTANTE NO BANCO
+// CARREGAR TEMPO DO BANCO
 // ============================================================
-async function salvarTempoRestante() {
-    try {
-        await supabaseClient
-            .from('sistema')
-            .upsert({
-                id: 'onda_estrelas',
-                tempo_restante: tempoRestante,
-                ultima_atualizacao: new Date().toISOString(),
-            });
-    } catch (error) {
-        console.error('Erro ao salvar tempo restante:', error);
-    }
-}
-
-// ============================================================
-// CARREGAR TEMPO RESTANTE DO BANCO
-// ============================================================
-async function carregarTempoRestante() {
+async function carregarTempo() {
     try {
         const { data, error } = await supabaseClient
-            .from('sistema')
-            .select('tempo_restante, ultima_atualizacao')
-            .eq('id', 'onda_estrelas')
+            .from('cronometro')
+            .select('tempo_restante')
+            .eq('id', 'global')
             .single();
 
-        if (error && error.code !== 'PGRST116') {
-            console.error('Erro ao carregar cronômetro:', error);
-            return;
-        }
-
-        if (data && data.tempo_restante !== undefined && data.tempo_restante !== null) {
-            // Verificar se o tempo salvo ainda é válido
-            const ultimaAtualizacao = new Date(data.ultima_atualizacao);
-            const agora = new Date();
-            const diffSegundos = Math.floor((agora - ultimaAtualizacao) / 1000);
-            
-            // Subtrair o tempo que passou desde a última atualização
-            tempoRestante = Math.max(0, data.tempo_restante - diffSegundos);
-            
-            console.log(`⏳ Tempo restante carregado: ${tempoRestante} segundos`);
+        if (data && data.tempo_restante !== null) {
+            tempoRestante = data.tempo_restante;
+            console.log('⏳ Cronômetro carregado:', tempoRestante);
         } else {
-            // Primeira vez: criar registro
+            // PRIMEIRA VEZ: CRIAR REGISTRO
             tempoRestante = INTERVALO_SEGUNDOS;
-            await salvarTempoRestante();
-            console.log('🆕 Cronômetro iniciado!');
+            await supabaseClient
+                .from('cronometro')
+                .insert({ 
+                    id: 'global', 
+                    tempo_restante: tempoRestante 
+                });
+            console.log('🆕 Cronômetro criado!');
         }
     } catch (error) {
-        console.error('❌ Erro ao carregar estado:', error);
+        console.error('❌ Erro ao carregar:', error);
         tempoRestante = INTERVALO_SEGUNDOS;
     }
 }
 
 // ============================================================
-// DISTRIBUIR ONDA PARA TODOS
+// SALVAR TEMPO NO BANCO
 // ============================================================
-async function distribuirOnda() {
+async function salvarTempo() {
     try {
-        console.log('🌊 INICIANDO DISTRIBUIÇÃO DA ONDA!');
+        await supabaseClient
+            .from('cronometro')
+            .update({ tempo_restante: tempoRestante })
+            .eq('id', 'global');
+    } catch (error) {
+        console.error('❌ Erro ao salvar:', error);
+    }
+}
 
-        // Buscar todos os usuários
+// ============================================================
+// DISTRIBUIR PARA TODOS OS JOGADORES
+// ============================================================
+async function distribuirParaTodos() {
+    try {
+        console.log('🌊 DISTRIBUINDO ONDA!');
+
+        // BUSCAR TODOS OS USUÁRIOS
         const allUsers = await getAllUsers();
-        console.log(`👥 ${allUsers.length} usuários encontrados`);
 
-        // Para cada usuário, adicionar EXATAMENTE 1 estrela e 1 tomate
+        // PARA CADA USUÁRIO, ADICIONAR 1 ESTRELA E 1 TOMATE
         for (const user of allUsers) {
-            const estrelasAtuais = user.estrelas_disponiveis || 0;
-            const tomatesAtuais = user.tomates_disponiveis || 0;
+            const estrelas = (user.estrelas_disponiveis || 0) + 1;
+            const tomates = (user.tomates_disponiveis || 0) + 1;
             
-            await updateUserPoints(user.id, 'estrelas_disponiveis', estrelasAtuais + 1);
-            await updateUserPoints(user.id, 'tomates_disponiveis', tomatesAtuais + 1);
-            
-            console.log(`✅ ${user.username}: +1⭐ +1🍅 (agora: ${estrelasAtuais + 1}⭐ ${tomatesAtuais + 1}🍅)`);
+            await updateUserPoints(user.id, 'estrelas_disponiveis', estrelas);
+            await updateUserPoints(user.id, 'tomates_disponiveis', tomates);
         }
 
-        // Resetar o cronômetro
+        // RESETAR O CRONÔMETRO
         tempoRestante = INTERVALO_SEGUNDOS;
-        await salvarTempoRestante();
-        atualizarDisplayCronometro();
+        await salvarTempo();
+        atualizarDisplay();
 
-        // Mostrar notificação
+        // NOTIFICAÇÃO
         showToast('🌊 ONDA DE ESTRELAS! Todos ganharam 1⭐ e 1🍅!', '🌊');
 
-        // Recarregar a página para atualizar os saldos
+        // RECARREGAR PARA ATUALIZAR OS SALDOS
         setTimeout(() => {
             window.location.reload();
-        }, 3000);
+        }, 2000);
 
     } catch (error) {
-        console.error('❌ Erro ao distribuir onda:', error);
-        // Resetar cronômetro mesmo com erro
+        console.error('❌ Erro na distribuição:', error);
         tempoRestante = INTERVALO_SEGUNDOS;
-        await salvarTempoRestante();
-        atualizarDisplayCronometro();
+        await salvarTempo();
+        atualizarDisplay();
     }
 }
 
 // ============================================================
 // ATUALIZAR DISPLAY
 // ============================================================
-function atualizarDisplayCronometro() {
+function atualizarDisplay() {
     const el = document.getElementById('cronometroDisplay');
     if (!el) return;
 
