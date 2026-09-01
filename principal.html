@@ -6,9 +6,10 @@
     <title>⭐ Me dê uma estrela — Principal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/principal.css" />
+    <link rel="stylesheet" href="css/cronometro.css" />
 </head>
 <body>
     <div class="stars-bg"></div>
@@ -24,9 +25,28 @@
             <span class="user-avatar" id="navAvatar">🟡</span>
             <span class="user-name" id="navUsername">Carregando...</span>
             <button class="btn-nav" onclick="window.location.href='perfil.html'">👤</button>
+            <button class="btn-nav" onclick="window.location.href='ranking.html'">🏆</button>
+            <button class="btn-nav" onclick="window.location.href='historico.html'">📜</button>
             <button class="btn-nav" onclick="logout()">🚪</button>
         </div>
     </nav>
+
+    <!-- CRONÔMETRO GLOBAL -->
+    <div class="cronometro-container">
+        <div class="cronometro-card">
+            <div class="cronometro-title">
+                <span class="cronometro-icon">⭐</span>
+                PRÓXIMA ONDA DE ESTRELAS E CHUVA DE TOMATES
+                <span class="cronometro-icon">🍅</span>
+            </div>
+            <div class="cronometro-display" id="cronometroDisplay">
+                01:00:00
+            </div>
+            <div class="cronometro-sub">
+                🌟 A cada hora, todos ganham 1⭐ e 1🍅!
+            </div>
+        </div>
+    </div>
 
     <!-- SALDO DIÁRIO -->
     <section class="daily-balance">
@@ -50,9 +70,7 @@
     <p class="fun-phrase" id="funPhrase">✨ Distribua amor. Ou tomates. ✨</p>
 
     <!-- LISTA DE AMIGOS -->
-    <section class="friends-grid" id="friendsGrid">
-        <!-- Cards gerados via JS -->
-    </section>
+    <section class="friends-grid" id="friendsGrid"></section>
 
     <!-- RANKING RÁPIDO -->
     <section class="quick-rank">
@@ -73,10 +91,11 @@
         </div>
     </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/avatars.js"></script>
-<script src="js/auth.js"></script>
-<script src="js/database.js"></script>
-<script src="js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/avatars.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/cronometro.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>
