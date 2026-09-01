@@ -5,19 +5,6 @@ let userData = null;
 
 // ===== INICIALIZAÇÃO =====
 document.addEventListener('DOMContentLoaded', async () => {
-    // Aguardar o Supabase inicializar
-    if (typeof supabaseClient === 'undefined') {
-        console.log('Aguardando Supabase...');
-        // Tentar novamente após 500ms
-        setTimeout(async () => {
-            await initApp();
-        }, 500);
-        return;
-    }
-    await initApp();
-});
-
-async function initApp() {
     const user = requireAuth();
     if (!user) return;
 
@@ -33,6 +20,9 @@ async function initApp() {
         await loadFriends();
         setRandomPhrase();
 
+        // Iniciar cronômetro global
+        await iniciarCronometro();
+
         document.getElementById('actionModal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) closeModal();
         });
@@ -41,7 +31,8 @@ async function initApp() {
         console.error('Erro ao carregar dados:', error);
         alert('Erro ao carregar seus dados. Tente recarregar.');
     }
-}
+});
+
 // ===== ATUALIZAR NAVBAR =====
 function updateNavbar() {
     document.getElementById('navAvatar').textContent = userData.avatar_emoji || '🟡';
@@ -65,8 +56,6 @@ async function loadFriends() {
     try {
         allUsers = await getAllUsers();
         const grid = document.getElementById('friendsGrid');
-        if (!grid) return;
-        
         grid.innerHTML = '';
 
         const friends = allUsers.filter(u => u.id !== currentUser.id);
@@ -85,10 +74,6 @@ async function loadFriends() {
 
     } catch (error) {
         console.error('Erro ao carregar amigos:', error);
-        const grid = document.getElementById('friendsGrid');
-        if (grid) {
-            grid.innerHTML = `<p style="text-align:center;color:#e74c3c;">Erro ao carregar amigos. Recarregue a página.</p>`;
-        }
     }
 }
 
@@ -119,10 +104,8 @@ function createFriendCard(friend) {
         </div>
     `;
 
-    // Configurar eventos dos botões
     card.querySelectorAll('.btn-action').forEach(btn => {
         btn.addEventListener('click', () => handleAction(btn.dataset.userid, btn.dataset.action));
-        // Desabilitar se não tiver pontos
         const action = btn.dataset.action;
         if (action === 'star' && (userData.estrelas_disponiveis || 0) <= 0) {
             btn.disabled = true;
@@ -137,7 +120,7 @@ function createFriendCard(friend) {
     return card;
 }
 
-// ===== AÇÕES (DAR ESTRELA / JOGAR TOMATE) =====
+// ===== AÇÕES =====
 let pendingAction = null;
 
 function handleAction(targetUserId, actionType) {
@@ -155,11 +138,9 @@ function handleAction(targetUserId, actionType) {
     const targetUser = allUsers.find(u => u.id === targetUserId);
     if (!targetUser) return;
 
-    const actionTypePt = actionType === 'star' ? 'estrela ⭐' : 'tomate 🍅';
     const actionVerb = actionType === 'star' ? 'DAR ESTRELA' : 'JOGAR TOMATE';
     const icon = actionType === 'star' ? '⭐' : '🍅';
 
-    // Abrir modal
     const modal = document.getElementById('actionModal');
     document.getElementById('modalIcon').textContent = icon;
     document.getElementById('modalTitle').textContent = actionVerb;
@@ -184,7 +165,6 @@ async function confirmAction(targetUserId, actionType) {
 
     try {
         const targetUser = allUsers.find(u => u.id === targetUserId);
-        const actionName = actionType === 'star' ? 'estrela' : 'tomate';
 
         if (actionType === 'star') {
             await giveStar(currentUser.id, targetUserId);
@@ -192,11 +172,9 @@ async function confirmAction(targetUserId, actionType) {
             await giveTomato(currentUser.id, targetUserId);
         }
 
-        // Recarregar dados
         userData = await getUserData(currentUser.id);
         updateBalance();
 
-        // Animação e mensagem
         const emoji = actionType === 'star' ? '⭐' : '🍅';
         const messages = actionType === 'star'
             ? [
@@ -213,7 +191,6 @@ async function confirmAction(targetUserId, actionType) {
         const msg = messages[Math.floor(Math.random() * messages.length)];
         showToast(msg, emoji);
 
-        // Recarregar lista
         await loadFriends();
 
     } catch (error) {
